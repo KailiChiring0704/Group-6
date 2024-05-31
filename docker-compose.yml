@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: billing-system-db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_HOST: "%"
+
+  www:
+    image: php:apache
+    volumes:
+      - "./:/var/www/html"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - db
+    command: /bin/sh -c "docker-php-ext-install mysqli && chown -R www-data:www-data /var/www/html && apache2-foreground"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8001:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
